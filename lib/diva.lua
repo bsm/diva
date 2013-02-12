@@ -51,5 +51,5 @@ module(...)
 function build(fun)
   local point = endpoint:new(self)
   fun(point)
-  return function() return point:run() end
+  return function(opts) return point:run(opts) end
 end

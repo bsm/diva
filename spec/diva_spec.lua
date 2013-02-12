@@ -218,6 +218,12 @@ context('diva', function()
       assert_equal(ngx._body, '11x')
     end)
 
+    it('should run (with custom opts)', function()
+      endpoint:before(function(env) return 400 + env.a end)
+      endpoint:run({ a = 3 })
+      assert_equal(ngx._exit, 403)
+    end)
+
     it('should allow stop-gaps (through filters)', function()
       local ran = {}
       endpoint:before(function(env) env.var = 10 end)

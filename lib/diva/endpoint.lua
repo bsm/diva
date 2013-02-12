@@ -55,12 +55,15 @@ function err(_, ...)
 end
 
 -- Run a request cycle
-function run(self)
+function run(self, env)
 
   -- Create an `env`
+  local env = env or {}
   local req = request:new()
   local res = response:new()
-  local env = { req = req, res = res }
+
+  env.req = req
+  env.res = res
 
   -- Executes before filters. Parses return values. Stops execution on response.
   for i=1,#self._before do
