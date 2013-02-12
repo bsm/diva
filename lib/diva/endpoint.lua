@@ -35,7 +35,14 @@ end
 -- Attach a `fun` as an after filter
 -- Expects `fun` to accept the env as the first argument
 function after(self, fun)
-  insert(self._after, fun)
+  insert(self._after, 1, fun)
+end
+
+-- Attaches two functions as around filter
+-- Expects `pre` & `post` functions to accept the env as the first argument
+function around(self, pre, post)
+  before(self, pre)
+  after(self, post)
 end
 
 -- Attach a `fun` as the actual perform block
