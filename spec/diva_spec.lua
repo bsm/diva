@@ -127,6 +127,12 @@ context('diva', function()
       response:parse(function(i) return i, "Forbidden" end, 403)
       assert_equal(response.status, 403)
       assert_equal(response.body, "Forbidden")
+
+      response:parse(function() return 200, { ["X-Key-A"] = 1, ["X-Key-B"] = 2 }, "Hello" end)
+      assert_equal(response.status, 200)
+      assert_equal(response.body, "Hello")
+      assert_equal(response.headers["X-Key-A"], 1)
+      assert_equal(response.headers["X-Key-B"], 2)
     end)
 
     it('should set cookies', function()

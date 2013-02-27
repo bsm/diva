@@ -2,6 +2,7 @@
 local setmetatable  = setmetatable
 local type          = type
 local concat        = table.concat
+local pairs         = pairs
 
 -- Nginx locals
 local print         = ngx.print
@@ -22,14 +23,19 @@ end
 
 -- Parse the response from executing `fun` with arguments
 function parse(self, fun, ...)
-  local status, body = fun(...)
+  local vals = {fun(...)}
 
-  if status then
-    self.status = status
-  end
-
-  if body then
-    self.body = body
+  if #vals == 1 then
+    self.status = vals[1]
+  elseif #vals == 2 then
+    self.status = vals[1]
+    self.body   = vals[2]
+  elseif #vals == 3 then
+    self.status = vals[1]
+    self.body   = vals[3]
+    for k, v in pairs(vals[2]) do
+      self.headers[k] = v
+    end
   end
 end
 
@@ -88,18 +94,3 @@ function render(self)
   print(self.body)
   return self.status or 200
 end
-
-
-      --   domain = "; domain=" + value[:domain] if value[:domain]
-      --   path = "; path=" + value[:path] if value[:path]
-      --   max_age = "; max-age=" + value[:max_age] if value[:max_age]
-      --   expires = "; expires=" +
-      --     rfc2822(value[:expires].clone.gmtime) if value[:expires]
-      --   secure = "; secure" if value[:secure]
-      --   httponly = "; HttpOnly" if value[:httponly]
-      --   value = value[:value]
-      -- end
-      -- value = [value] unless Array === value
-      -- cookie = escape(key) + "=" +
-      --   value.map { |v| escape v }.join("&") +
-      --   "#{domain}#{path}#{max_age}#{expires}#{secure}#{httponly}"
