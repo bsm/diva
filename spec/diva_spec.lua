@@ -12,6 +12,9 @@ context('diva', function()
     ngx.req.get_body_data = function() return "BODY" end
     ngx.req.read_body     = function() body_read_count = body_read_count + 1 end
     ngx.req.get_headers   = function() return { ['x_custom'] = "HEADER" } end
+    ngx.var.uri     = "/foo/bar"
+    ngx.var.args    = "a=1&b=2"
+    ngx.var.is_args = "?"
     ngx.var['http_x_custom'] = "HEADER"
     ngx.var['cookie_custom'] = "COOKIE"
   end)
@@ -43,6 +46,18 @@ context('diva', function()
 
     before(function()
       request = require('diva.request'):new()
+    end)
+
+    it('should read the request path', function()
+      assert_equal(request:path(), "/foo/bar")
+    end)
+
+    it('should read the full path', function()
+      assert_equal(request:fullpath(), "/foo/bar?a=1&b=2")
+    end)
+
+    it('should read the query string', function()
+      assert_equal(request:query_string(), "a=1&b=2")
     end)
 
     it('should read & memoize GET params', function()

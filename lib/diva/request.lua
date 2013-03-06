@@ -32,6 +32,21 @@ function new(self)
   return setmetatable({ _memo = {} }, { __index = self })
 end
 
+-- The full request path, e.q. /foo/bar?k=v
+function fullpath(self)
+  return vars.uri .. vars.is_args .. vars.args
+end
+
+-- The request path without query string e.q. /foo/bar
+function path(self)
+  return vars.uri
+end
+
+-- The GET query string e.q. a=1&b=2
+function query_string(self)
+  return vars.args
+end
+
 -- GET params
 function params(self)
   if not self._params then
