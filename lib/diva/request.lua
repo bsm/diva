@@ -8,6 +8,7 @@ local get_post_args = ngx.req.get_post_args
 local get_body_data = ngx.req.get_body_data
 local get_headers   = ngx.req.get_headers
 local read_body     = ngx.req.read_body
+local discard_body  = ngx.req.discard_body
 local vars          = ngx.var
 
 module(...)
@@ -75,6 +76,15 @@ function body(self)
   end
 
   return self._body
+end
+
+-- Discard the request body unless read
+function flush(self)
+  if not self._memo.body_read then
+    self._memo.body_read = true
+    self._memo.body = true
+    discard_body()
+  end
 end
 
 -- Request headers

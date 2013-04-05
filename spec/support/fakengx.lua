@@ -453,6 +453,10 @@ function fakengx.new()
   function ngx.req.read_body()
   end
 
+  -- http://wiki.nginx.org/HttpLuaModule#ngx.req.discard_body
+  function ngx.req.discard_body()
+  end
+
   -- http://wiki.nginx.org/HttpLuaModule#ngx.socket.tcp
   function ngx.socket.tcp()
     local sock = TCP:new()

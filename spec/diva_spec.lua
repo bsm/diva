@@ -96,6 +96,12 @@ context('diva', function()
       assert_equal(body_read_count, 1)
     end)
 
+    it('should flush requests', function()
+      assert_nil(request:flush())
+      assert_nil(request:body()) -- Discarded
+      assert_equal(body_read_count, 0)
+    end)
+
     it('should read & memoize headers', function()
       assert_nil(request._headers)
 
