@@ -449,6 +449,11 @@ function fakengx.new()
     return ngx._captures:stub(...)
   end
 
+  -- http://wiki.nginx.org/HttpLuaModule#ngx.req.get_method
+  function ngx.req.get_method()
+    return "GET"
+  end
+
   -- http://wiki.nginx.org/HttpLuaModule#ngx.req.read_body
   function ngx.req.read_body()
   end

@@ -48,13 +48,21 @@ context('diva', function()
       request = require('diva.request'):new()
     end)
 
+    it('should read the method', function()
+      assert_equal(request:method(), "GET")
+    end)
+
     it('should read the request path', function()
       assert_equal(request:path(), "/foo/bar")
     end)
 
     it('should read the full path', function()
       assert_equal(request:fullpath(), "/foo/bar?a=1&b=2")
+      ngx.var.is_args = ""
+      ngx.var.args = nil
+      assert_equal(request:fullpath(), "/foo/bar")
     end)
+
 
     it('should read the query string', function()
       assert_equal(request:query_string(), "a=1&b=2")
