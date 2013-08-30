@@ -3,6 +3,7 @@ local setmetatable  = setmetatable
 local downcase      = string.lower
 
 -- Nginx specific locals
+local ngx           = ngx
 local ngx_req       = ngx.req
 local get_uri_args  = ngx_req.get_uri_args
 local get_post_args = ngx_req.get_post_args
@@ -11,7 +12,6 @@ local get_headers   = ngx_req.get_headers
 local get_method    = ngx_req.get_method
 local read_body     = ngx_req.read_body
 local discard_body  = ngx_req.discard_body
-local vars          = ngx.var
 
 module(...)
 
@@ -46,17 +46,17 @@ end
 
 -- The full request path, e.q. /foo/bar?k=v
 function fullpath(self)
-  return vars.uri .. vars.is_args .. (vars.args or "")
+  return ngx.var.uri .. ngx.var.is_args .. (ngx.var.args or "")
 end
 
 -- The request path without query string e.q. /foo/bar
 function path(self)
-  return vars.uri
+  return ngx.var.uri
 end
 
 -- The GET query string e.q. a=1&b=2
 function query_string(self)
-  return vars.args
+  return ngx.var.args
 end
 
 -- GET params
@@ -109,12 +109,12 @@ end
 
 -- Read a single header, by (underscored, lowercase) name
 function header(self, name)
-  return vars["http_" .. downcase(name):gsub("-", "_")]
+  return ngx.var["http_" .. downcase(name):gsub("-", "_")]
 end
 
 -- Read a single cookie value
 function cookie(self, name)
-  return vars["cookie_" .. downcase(name):gsub("-", "_")]
+  return ngx.var["cookie_" .. downcase(name):gsub("-", "_")]
 end
 
 
