@@ -7,6 +7,7 @@ local xpcall        = xpcall
 local error         = error
 
 -- Nginx specific locals
+local ngx           = ngx
 local exit          = ngx.exit
 local log           = ngx.log
 local LOG_NOTICE    = ngx.NOTICE
@@ -16,10 +17,10 @@ local LOG_ERR       = ngx.ERR
 local request       = require 'diva.request'
 local response      = require 'diva.response'
 
-module(...)
+local _M = {}
 
 -- Constructor, initializes a new endpoint
-function new(self)
+_M.new = function(self)
   return setmetatable({
     _before = {},
     _after  = {},
@@ -28,41 +29,41 @@ end
 
 -- Attach a `fun` as a before filter
 -- Expects `fun` to accept the env as the first argument
-function before(self, fun)
+_M.before = function(self, fun)
   insert(self._before, fun)
 end
 
 -- Attach a `fun` as an after filter
 -- Expects `fun` to accept the env as the first argument
-function after(self, fun)
+_M.after = function(self, fun)
   insert(self._after, 1, fun)
 end
 
 -- Attaches two functions as around filter
 -- Expects `pre` & `post` functions to accept the env as the first argument
-function around(self, pre, post)
-  before(self, pre)
-  after(self, post)
+_M.around = function(self, pre, post)
+  self:before(pre)
+  self:after(post)
 end
 
 -- Attach a `fun` as the actual perform block
 -- Expects `fun` to accept the env as the first argument
-function perform(self, fun)
+_M.perform = function(self, fun)
   self._perform = fun
 end
 
 -- Notice log
-function notice(_, ...)
+_M.notice = function(_, ...)
   log(LOG_NOTICE, ...)
 end
 
 -- Error log
-function err(_, ...)
+_M.err = function(_, ...)
   log(LOG_ERR, ...)
 end
 
 -- Run a request cycle
-function run(self, env)
+_M.run = function(self, env)
 
   -- Create an `env`
   local env = env or {}
@@ -109,3 +110,5 @@ function run(self, env)
   -- Respond with status
   return exit(res:render())
 end
+
+return _M

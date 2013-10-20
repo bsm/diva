@@ -11,19 +11,19 @@ local headers       = ngx.header
 local escape_uri    = ngx.escape_uri
 local cookie_time   = ngx.cookie_time
 
-module(...)
+local _M = {}
 
 ---------------
 -- PUBLIC API
 ---------------
 
 -- Create a new response
-function new(self)
+_M.new = function(self)
   return setmetatable({ headers = headers, body = '' }, { __index = self })
 end
 
 -- Parse the response from executing `fun` with arguments
-function parse(self, fun, ...)
+_M.parse = function(self, fun, ...)
   local vals = {fun(...)}
 
   if #vals == 1 then
@@ -41,7 +41,7 @@ function parse(self, fun, ...)
 end
 
 -- Set or read the content type
-function content_type(self, value)
+_M.content_type = function(self, value)
   if value then
     self.headers['Content-Type'] = value
   end
@@ -50,7 +50,7 @@ function content_type(self, value)
 end
 
 -- Sets a cookie
-function set_cookie(self, name, value, opts)
+_M.set_cookie = function(self, name, value, opts)
   local jar  = self.headers['Set-Cookie'] or {}
   local vals = {}
   local opts = opts or {}
@@ -91,8 +91,10 @@ function set_cookie(self, name, value, opts)
 end
 
 -- Render the response
-function render(self)
+_M.render = function(self)
   ngx.status = self.status or 200
   print(self.body)
   return ngx.status
 end
+
+return _M

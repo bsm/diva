@@ -1,9 +1,8 @@
 package.path  = './spec/?.lua;./spec/support/?.lua;./lib/?.lua;;' .. package.path
-local fakengx = require('fakengx')
-
-_G['ngx'] = fakengx:new()
+_G['ngx'] = require('fakengx'):new()
 
 context('diva', function()
+  local diva, body_read_count
 
   before(function()
     body_read_count = 0
@@ -46,6 +45,7 @@ context('diva', function()
   end)
 
   context('request', function()
+    local request
 
     before(function()
       request = require('diva.request'):new()
@@ -158,6 +158,8 @@ context('diva', function()
   end)
 
   context('response', function()
+    local response
+
     before(function()
       response = require('diva.response'):new()
     end)
@@ -233,11 +235,12 @@ context('diva', function()
   end)
 
   context('endpoint', function()
+    local endpoint
+    local blank1 = function() end
+    local blank2 = function() end
 
     before(function()
       endpoint = require('diva.endpoint'):new()
-      blank1 = function() end
-      blank2 = function() end
     end)
 
     it('should accept before filters', function()

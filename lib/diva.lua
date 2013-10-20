@@ -1,7 +1,8 @@
 -- Diva locals
 local endpoint = require 'diva.endpoint'
 
-module(...)
+local _M = {}
+_M._VERSION = '0.6.0'
 
 -- Endpoint builder, Example:
 --
@@ -48,8 +49,10 @@ module(...)
 --      content_by_lua "controller.endpoint_b()";
 --    }
 --
-function build(fun)
-  local point = endpoint:new(self)
+_M.build = function(fun)
+  local point = endpoint:new()
   fun(point)
   return function(opts) return point:run(opts) end
 end
+
+return _M

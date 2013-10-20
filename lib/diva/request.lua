@@ -15,7 +15,7 @@ local get_method    = ngx_req.get_method
 local read_body     = ngx_req.read_body
 local discard_body  = ngx_req.discard_body
 
-module(...)
+local _M = {}
 
 ------------------
 -- LOCAL HELPERS
@@ -54,12 +54,12 @@ end
 ---------------
 
 -- Create a new request
-function new(self)
+_M.new = function(self)
   return setmetatable({ _memo = {} }, { __index = self })
 end
 
 -- The methos e.q. GET or POST
-function method(self)
+_M.method = function(self)
   if not self._method then
     self._method = get_method()
   end
@@ -68,7 +68,7 @@ function method(self)
 end
 
 -- The client IP
-function ip(self)
+_M.ip = function(self)
   if not self._ip then
     local var = ngx.var
     self._ip = pick_ip(var.remote_addr, true) or
@@ -80,32 +80,32 @@ function ip(self)
 end
 
 -- The user agent
-function user_agent(self)
+_M.user_agent = function(self)
   return ngx.var.http_user_agent
 end
 
 -- The referer
-function referer(self)
+_M.referer = function(self)
   return ngx.var.http_referer
 end
 
 -- The full request path, e.q. /foo/bar?k=v
-function fullpath(self)
+_M.fullpath = function(self)
   return ngx.var.uri .. ngx.var.is_args .. (ngx.var.args or "")
 end
 
 -- The request path without query string e.q. /foo/bar
-function path(self)
+_M.path = function(self)
   return ngx.var.uri
 end
 
 -- The GET query string e.q. a=1&b=2
-function query_string(self)
+_M.query_string = function(self)
   return ngx.var.args
 end
 
 -- GET params
-function params(self)
+_M.params = function(self)
   if not self._params then
     self._params = get_uri_args()
   end
@@ -114,7 +114,7 @@ function params(self)
 end
 
 -- POST params
-function post_params(self)
+_M.post_params = function(self)
   if not self._post_params then
     ensure_body(self)
     self._post_params = get_post_args()
@@ -124,7 +124,7 @@ function post_params(self)
 end
 
 -- Plain request body
-function body(self)
+_M.body = function(self)
   if not self._memo.body then
     ensure_body(self)
     self._memo.body = true
@@ -135,7 +135,7 @@ function body(self)
 end
 
 -- Discard the request body unless read
-function flush(self)
+_M.flush = function(self)
   if not self._memo.body_read then
     self._memo.body_read = true
     self._memo.body = true
@@ -144,7 +144,7 @@ function flush(self)
 end
 
 -- Request headers
-function headers(self)
+_M.headers = function(self)
   if not self._headers then
     self._headers = get_headers()
   end
@@ -153,14 +153,13 @@ function headers(self)
 end
 
 -- Read a single header, by (underscored, lowercase) name
-function header(self, name)
+_M.header = function(self, name)
   return ngx.var["http_" .. downcase(name):gsub("-", "_")]
 end
 
 -- Read a single cookie value
-function cookie(self, name)
+_M.cookie = function(self, name)
   return ngx.var["cookie_" .. downcase(name):gsub("-", "_")]
 end
 
-
-
+return _M
