@@ -5,6 +5,7 @@ local concat        = table.concat
 local pairs         = pairs
 
 -- Nginx locals
+local ngx           = ngx
 local print         = ngx.print
 local headers       = ngx.header
 local escape_uri    = ngx.escape_uri
@@ -91,6 +92,7 @@ end
 
 -- Render the response
 function render(self)
+  ngx.status = self.status or 200
   print(self.body)
-  return self.status or 200
+  return ngx.status
 end

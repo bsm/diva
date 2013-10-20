@@ -20,7 +20,7 @@ module(...)
 --        env.var = env.var + 1
 --      end)
 --
---      c.action(function(env)
+--      c.perform(function(env)
 --        return 200, env.var
 --      end)
 --    end)

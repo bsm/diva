@@ -4,6 +4,7 @@ require 'bundler/setup'
 require 'resty_test'
 
 RestyTest.config.root = File.expand_path("../resty", __FILE__)
+RestyTest.config.source = "http://openresty.org/download/ngx_openresty-1.4.2.8.tar.gz"
 RestyTest.start!
 
 RELEVANT = /Document Length|Document Path|Failed requests|Time taken|Total transferred|Requests per second/

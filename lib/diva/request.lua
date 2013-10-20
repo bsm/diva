@@ -1,6 +1,8 @@
 -- Lua core locals
 local setmetatable  = setmetatable
 local downcase      = string.lower
+local gmatch        = string.gmatch
+local type          = type
 
 -- Nginx specific locals
 local ngx           = ngx
@@ -26,6 +28,27 @@ local ensure_body = function(self)
   end
 end
 
+local pick_ip = function(str, first, match)
+  if type(str) ~= "string" then
+    return
+  end
+
+  local picked
+  for addr in gmatch(str, "[^,%s]+") do
+    if addr ~= "127.0.0.1" and addr ~= "localhost" and addr ~= "unix" and
+        not addr:find("^192%.168%.") and not addr:find("^10%.") and
+        not addr:find("^unix%:") then
+      if first or addr == match then
+        return addr
+      else
+        picked = addr
+      end
+    end
+  end
+
+  return picked
+end
+
 ---------------
 -- PUBLIC API
 ---------------
@@ -42,6 +65,28 @@ function method(self)
   end
 
   return self._method
+end
+
+-- The client IP
+function ip(self)
+  if not self._ip then
+    local var = ngx.var
+    self._ip = pick_ip(var.remote_addr, true) or
+      pick_ip(var.http_x_forwarded_for, false, var.http_client_ip) or
+      var.remote_addr
+  end
+
+  return self._ip
+end
+
+-- The user agent
+function user_agent(self)
+  return ngx.var.http_user_agent
+end
+
+-- The referer
+function referer(self)
+  return ngx.var.http_referer
 end
 
 -- The full request path, e.q. /foo/bar?k=v

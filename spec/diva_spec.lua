@@ -12,11 +12,14 @@ context('diva', function()
     ngx.req.get_body_data = function() return "BODY" end
     ngx.req.read_body     = function() body_read_count = body_read_count + 1 end
     ngx.req.get_headers   = function() return { ['x_custom'] = "HEADER" } end
+    ngx.var.remote_addr   = "1.2.3.4"
     ngx.var.uri     = "/foo/bar"
     ngx.var.args    = "a=1&b=2"
     ngx.var.is_args = "?"
-    ngx.var['http_x_custom'] = "HEADER"
-    ngx.var['cookie_custom'] = "COOKIE"
+    ngx.var.http_x_custom = "HEADER"
+    ngx.var.cookie_custom = "COOKIE"
+    ngx.var.http_user_agent = "curl/1.0"
+    ngx.var.http_referer = "http://original.host/path"
   end)
 
   after(function()
@@ -63,6 +66,33 @@ context('diva', function()
       assert_equal(request:fullpath(), "/foo/bar")
     end)
 
+    it('should parse the IP', function()
+      assert_equal(request:ip(), "1.2.3.4")
+      request._ip = nil
+      ngx.var.remote_addr = "127.0.0.1, 5.6.7.8"
+      assert_equal(request:ip(), "5.6.7.8")
+      request._ip = nil
+      ngx.var.remote_addr = "localhost , unix:/tmp/proxy.sock, 192.168.1.1, 20.10.5.1, 9.8.7.6"
+      assert_equal(request:ip(), "20.10.5.1")
+      request._ip = nil
+      ngx.var.remote_addr = "127.0.0.1"
+      ngx.var.http_x_forwarded_for = "1.2.3.4, 5.6.7.8, 9.8.7.6, 127.0.0.1"
+      assert_equal(request:ip(), "9.8.7.6")
+      request._ip = nil
+      ngx.var.http_client_ip = "5.6.7.8"
+      assert_equal(request:ip(), "5.6.7.8")
+      request._ip = nil
+      ngx.var.http_x_forwarded_for = nil
+      assert_equal(request:ip(), "127.0.0.1")
+    end)
+
+    it('should read the user agent', function()
+      assert_equal(request:user_agent(), "curl/1.0")
+    end)
+
+    it('should read the referer', function()
+      assert_equal(request:referer(), "http://original.host/path")
+    end)
 
     it('should read the query string', function()
       assert_equal(request:query_string(), "a=1&b=2")
@@ -191,11 +221,13 @@ context('diva', function()
       response.body = "Hello"
       assert_equal(response:render(), 200)
       assert_equal(ngx._body, "Hello")
+      assert_equal(ngx.status, 200)
 
       response.body   = "Forbidden"
       response.status = 403
       assert_equal(response:render(), 403)
       assert_equal(ngx._body, "HelloForbidden")
+      assert_equal(ngx.status, 403)
     end)
 
   end)
